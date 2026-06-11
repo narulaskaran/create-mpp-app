@@ -1,37 +1,12 @@
 import { useEffect, useState } from 'react'
 import { createRoot } from 'react-dom/client'
-import { Check, Copy, LoaderCircle } from 'lucide-react'
-
-type HealthState = 'loading' | 'configured' | 'missing' | 'unavailable'
+import { Check, Copy } from 'lucide-react'
 
 const commands = {
   clone: 'git clone https://github.com/narulaskaran/create-mpp-app.git',
   scaffold: 'cd create-mpp-app && npm install && npm run dev -- my-mpp-app',
   restart: 'cd my-mpp-app && npm run dev',
   test: 'npx mppx http://localhost:3000/paid',
-}
-
-const healthCopy: Record<HealthState, { label: string; detail: string; tone: string }> = {
-  loading: {
-    label: 'Checking hosted API',
-    detail: 'Verifying whether the public wallet provisioning service is configured on this deployment.',
-    tone: 'bg-zinc-100 text-zinc-600',
-  },
-  configured: {
-    label: 'Hosted API configured',
-    detail: 'This deployment is ready to provision wallets for the CLI.',
-    tone: 'bg-emerald-100 text-emerald-800',
-  },
-  missing: {
-    label: 'Hosted API not configured',
-    detail: 'The site is live, but CLI wallet provisioning will fail until the service env vars are set.',
-    tone: 'bg-amber-100 text-amber-800',
-  },
-  unavailable: {
-    label: 'Hosted API unavailable',
-    detail: 'The health endpoint could not be reached from this page.',
-    tone: 'bg-rose-100 text-rose-800',
-  },
 }
 
 function CommandButton({
@@ -70,29 +45,7 @@ function CommandButton({
 }
 
 function App(): React.JSX.Element {
-  const [health, setHealth] = useState<HealthState>('loading')
   const [copiedId, setCopiedId] = useState<string | null>(null)
-
-  useEffect(() => {
-    let cancelled = false
-
-    fetch('/api/health')
-      .then(async (response) => {
-        if (!response.ok) throw new Error('health request failed')
-        return (await response.json()) as { provisioningConfigured?: boolean }
-      })
-      .then((payload) => {
-        if (cancelled) return
-        setHealth(payload.provisioningConfigured ? 'configured' : 'missing')
-      })
-      .catch(() => {
-        if (!cancelled) setHealth('unavailable')
-      })
-
-    return () => {
-      cancelled = true
-    }
-  }, [])
 
   useEffect(() => {
     if (!copiedId) return
@@ -105,8 +58,6 @@ function App(): React.JSX.Element {
       window.clearTimeout(timeout)
     }
   }, [copiedId])
-
-  const currentHealth = healthCopy[health]
 
   async function handleCopy(id: string, value: string): Promise<void> {
     try {
@@ -132,27 +83,13 @@ function App(): React.JSX.Element {
           </a>
         </header>
 
-        <footer className="absolute bottom-0 left-0 right-0 flex items-center justify-center px-6 py-5 md:px-8">
-          <p className="text-sm text-zinc-400">
-            {currentHealth.label}.{' '}
-            <a className="transition-colors hover:text-zinc-600" href="/api/health">
-              Check /api/health
-            </a>
-          </p>
-        </footer>
-
         <main className="flex flex-1 items-center justify-center px-6 pb-20 pt-24 md:px-8">
           <div className="w-full max-w-3xl space-y-10">
             <div className="space-y-4">
-              <div className={`inline-flex items-center rounded-full px-3 py-1 text-sm ${currentHealth.tone}`}>
-                {health === 'loading' ? <LoaderCircle className="mr-2 size-4 animate-spin" /> : null}
-                CLI first
-              </div>
-
               <h1 className="text-4xl font-semibold leading-tight tracking-tight text-zinc-900 md:text-6xl">
-                Spin up a new
+                Start accepting
                 <br />
-                <span className="text-emerald-600">MPP app.</span>
+                Machine <span className="text-emerald-600">Payments</span>
               </h1>
 
               <p className="max-w-2xl text-lg leading-8 text-zinc-500">
