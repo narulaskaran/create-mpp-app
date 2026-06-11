@@ -1,120 +1,63 @@
 # create-mpp-app
 
-This repo now carries both halves of the demo:
+Bootstrap a small Next.js app that accepts Machine Payments Protocol payments.
 
-- the existing `create-mpp-app` CLI in [`src/`](./src)
-- the Phase 1 Privy-backed wallet provisioning surface for Vercel in [`api/`](./api)
+`create-mpp-app` currently runs from this repo and scaffolds:
 
-## Current status
+- a Next.js App Router app
+- a paid `GET /paid` route powered by `mppx/server`
+- `.env.local` and `.env.example`
+- a locally generated wallet and MPP secret for testing
 
-- Phase 1 is here: a deployable provisioning API plus a minimal landing page for the hosted flow.
-- Phase 2 is still pending: the CLI in `src/` still generates wallets locally and does not call the hosted API yet.
+## Quickstart
 
-## CLI
-
-The CLI can be used interactively or non-interactively.
-
-**Interactive**
+The package is not published yet, so the current flow is repo-local:
 
 ```bash
-npx create-mpp-app my-api
-```
-
-**Non-interactive**
-
-```bash
-npx create-mpp-app my-api --price=0.01 --mainnet --yes
-```
-
-**Flags**
-
-| Flag | Default | Description |
-|------|---------|-------------|
-| `--price=<n>` | `0.01` | API price |
-| `--testnet` | ✓ | Use Tempo testnet |
-| `--mainnet` | — | Use Tempo mainnet |
-| `--yes` / `-y` | — | Skip prompts |
-
-### Local CLI development
-
-```bash
+git clone https://github.com/narulaskaran/create-mpp-app.git
+cd create-mpp-app
 npm install
-npm run build
-npm run dev -- my-api
+npm run dev -- my-mpp-app
 ```
 
-## Phase 1 provisioning API
+Then start the generated app:
 
-Deploy this repo to Vercel and configure the env vars in [.env.example](./.env.example).
-`npm run build` now emits both the CLI bundle in `dist/` and the landing page assets in `public/`, which matches the Vercel deployment.
-
-This implementation currently follows the managed-app/server-export path:
-
-- the server creates the wallet
-- the server signs the export request with the app authorization key
-- the server exports the private key once
-- the server returns the key to the caller
-- the service does not retain the user secret key after responding
-- the service is not intended to manage the wallet after provisioning
-
-This is intentionally a one-time provisioning service. The app owns the Privy integration, but the caller is expected to take custody of the exported private key and manage the wallet outside this service after creation.
-
-### Endpoint
-
-`POST /api/provision`
-
-Request body:
-
-```json
-{
-  "projectName": "my-api",
-  "name": "Demo Developer",
-  "email": "demo@example.com",
-  "chainType": "ethereum"
-}
+```bash
+cd my-mpp-app
+npm run dev
 ```
 
-Response body:
+Test the paid route:
 
-```json
-{
-  "walletId": "wallet_123",
-  "address": "0xabc...",
-  "privateKey": "0xdef...",
-  "chainType": "ethereum",
-  "warning": "Store this private key securely. It will not be shown again."
-}
+```bash
+npx mppx http://localhost:3000/paid
 ```
 
-The response should be treated as secret material:
+## CLI flags
 
-- do not log `privateKey`
-- do not persist `privateKey` server-side
-- deliver it only over HTTPS
-- expect the caller to store it themselves
+- `--price=<n>` sets the payment amount. Default: `0.01`
+- `--testnet` uses Tempo testnet. Default: on
+- `--mainnet` uses Tempo mainnet
+- `--yes` or `-y` skips prompts
 
-### Vercel env vars
+## What lives here
 
-- `PRIVY_APP_ID`
-- `PRIVY_APP_SECRET`
-- `PRIVY_API_BASE_URL` (optional, defaults to `https://api.privy.io/v1`)
-- `PRIVY_AUTHORIZATION_PRIVATE_KEY` (required in Vercel to sign export requests; this repo accepts the Privy dashboard format `wallet-auth:<base64-pkcs8>`, a PKCS#8 PEM private key with `\n` escapes, or raw base64 PKCS#8 DER)
-- `PRIVY_AUTHORIZATION_KEY_PUBLIC_KEY` (optional when the private key above is present; if set, use the real P-256 public key, preferably as single-line base64-DER, not a dashboard ID)
+- [`src/`](./src): the CLI and scaffold templates
+- [`site/`](./site): the public landing page for the project
+- [`api/`](./api): an optional hosted Privy-backed provisioning API
 
-For local development, if `PRIVY_AUTHORIZATION_PRIVATE_KEY` is unset, the API falls back to `.privy/authorization-private.pem`. If `PRIVY_AUTHORIZATION_KEY_PUBLIC_KEY` is unset, the API derives it from the authorization private key.
+The hosted API is a separate surface from the CLI today. The CLI still generates a wallet locally and does not yet call the deployed provisioning endpoint.
 
-## Landing page
+## Hosted provisioning API
 
-The root landing page is generated into `public/` during the build from [`index.html`](./index.html) plus the React/Tailwind source in [`site/`](./site). Vercel serves that static output alongside the `api/` functions. It explains:
+If you deploy this repo to Vercel, it also serves the landing page and `api/` routes together. The provisioning API lives at `POST /api/provision`.
 
-- what this deployment does
-- how the CLI fits into the flow
-- how to call the provisioning API
+Configure the required env vars in [.env.example](./.env.example) if you want that hosted flow. The repo accepts Privy dashboard authorization keys in the `wallet-auth:...` format.
 
-## Verification
+## Development
 
 ```bash
 npm run check
 ```
 
-`npm run check` validates the CLI build and typechecks the added Vercel API code.
+`npm run check` builds the CLI and site, then typechecks the repo.

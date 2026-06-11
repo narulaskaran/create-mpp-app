@@ -4,65 +4,34 @@ import { Check, Copy, LoaderCircle } from 'lucide-react'
 
 type HealthState = 'loading' | 'configured' | 'missing' | 'unavailable'
 
-const responseExample = `{
-  "walletId": "wallet_123",
-  "address": "0xabc...",
-  "privateKey": "0xdef...",
-  "chainType": "ethereum",
-  "warning": "Store this private key securely. It will not be shown again."
-}`
+const commands = {
+  clone: 'git clone https://github.com/narulaskaran/create-mpp-app.git',
+  scaffold: 'cd create-mpp-app && npm install && npm run dev -- my-mpp-app',
+  run: 'cd my-mpp-app && npm run dev',
+  test: 'npx mppx http://localhost:3000/paid',
+}
 
 const healthCopy: Record<HealthState, { label: string; detail: string; tone: string }> = {
   loading: {
-    label: 'Checking configuration',
-    detail: 'Verifying whether the deployment can provision wallets right now.',
+    label: 'Checking hosted API',
+    detail: 'Verifying whether the optional hosted provisioning API is configured on this deployment.',
     tone: 'bg-zinc-100 text-zinc-600',
   },
   configured: {
-    label: 'Configured',
-    detail: 'The hosted flow has what it needs to create and export wallets.',
+    label: 'Hosted API configured',
+    detail: 'This deployment can create and export wallets, but that flow is still secondary to the CLI today.',
     tone: 'bg-emerald-100 text-emerald-800',
   },
   missing: {
-    label: 'Missing env vars',
-    detail: 'Deployment is live, but provisioning is blocked until Privy secrets are configured.',
+    label: 'Hosted API not configured',
+    detail: 'The site is live, but the optional Privy provisioning API still needs env vars.',
     tone: 'bg-amber-100 text-amber-800',
   },
   unavailable: {
-    label: 'Unavailable',
+    label: 'Hosted API unavailable',
     detail: 'The health endpoint could not be reached from this page.',
     tone: 'bg-rose-100 text-rose-800',
   },
-}
-
-function buildCurl(origin: string): string {
-  return `curl --request POST \\
-  --url ${origin}/api/provision \\
-  --header 'content-type: application/json' \\
-  --data '{
-    "projectName": "my-api",
-    "name": "Demo Developer",
-    "email": "demo@example.com",
-    "chainType": "ethereum"
-  }'`
-}
-
-function buildHealthCommand(origin: string): string {
-  return `curl ${origin}/api/health`
-}
-
-function CodeBlock({ children, tone = 'dark' }: { children: string; tone?: 'dark' | 'light' }): React.JSX.Element {
-  return (
-    <pre
-      className={
-        tone === 'dark'
-          ? 'overflow-x-auto rounded-[1.5rem] bg-zinc-900 px-4 py-4 text-sm leading-6 text-zinc-100 md:px-5'
-          : 'overflow-x-auto rounded-[1.5rem] bg-white px-4 py-4 text-sm leading-6 text-zinc-700 ring-1 ring-zinc-200 md:px-5'
-      }
-    >
-      <code className="font-mono">{children}</code>
-    </pre>
-  )
 }
 
 function CommandButton({
@@ -137,9 +106,6 @@ function App(): React.JSX.Element {
     }
   }, [copiedId])
 
-  const origin = window.location.origin
-  const curlExample = buildCurl(origin)
-  const healthCommand = buildHealthCommand(origin)
   const currentHealth = healthCopy[health]
 
   async function handleCopy(id: string, value: string): Promise<void> {
@@ -167,12 +133,12 @@ function App(): React.JSX.Element {
         </header>
 
         <footer className="absolute bottom-0 left-0 right-0 flex items-center justify-center px-6 py-5 md:px-8">
-          <a
-            className="text-sm text-zinc-400 transition-colors hover:text-zinc-600"
-            href="/api/health"
-          >
-            Check /api/health
-          </a>
+          <p className="text-sm text-zinc-400">
+            {currentHealth.label}.{' '}
+            <a className="transition-colors hover:text-zinc-600" href="/api/health">
+              Check /api/health
+            </a>
+          </p>
         </footer>
 
         <main className="flex flex-1 items-center justify-center px-6 pb-20 pt-24 md:px-8">
@@ -180,50 +146,78 @@ function App(): React.JSX.Element {
             <div className="space-y-4">
               <div className={`inline-flex items-center rounded-full px-3 py-1 text-sm ${currentHealth.tone}`}>
                 {health === 'loading' ? <LoaderCircle className="mr-2 size-4 animate-spin" /> : null}
-                {currentHealth.label}
+                CLI first
               </div>
 
               <h1 className="text-4xl font-semibold leading-tight tracking-tight text-zinc-900 md:text-6xl">
-                Create a wallet.
+                Spin up a new
                 <br />
-                Return the key <span className="text-emerald-600">once.</span>
+                <span className="text-emerald-600">MPP app.</span>
               </h1>
 
               <p className="max-w-2xl text-lg leading-8 text-zinc-500">
-                Hosted wallet provisioning for <span className="font-mono text-base text-zinc-700">create-mpp-app</span>.
-                It creates a Privy wallet, exports the private key one time, and hands custody back to the caller.
+                <span className="font-mono text-base text-zinc-700">create-mpp-app</span> scaffolds a small
+                Next.js app with a paid <code>/paid</code> route, an env file, and the pieces you need to test
+                Machine Payments Protocol locally.
               </p>
 
               <p className="max-w-2xl text-sm leading-7 text-zinc-400">
-                {currentHealth.detail} Set <code>PRIVY_APP_ID</code>, <code>PRIVY_APP_SECRET</code>, and{' '}
-                <code>PRIVY_AUTHORIZATION_PRIVATE_KEY</code> in Vercel. The public key is optional.
+                The package is not published yet, so the current flow runs from this repo. The hosted Privy
+                provisioning API on this deployment is separate and not yet wired into the CLI.
               </p>
             </div>
 
             <div className="space-y-4">
               <section className="space-y-2 rounded-[1.75rem] bg-zinc-50 p-5">
                 <div className="px-1">
-                  <p className="text-sm text-zinc-400">Provision via API</p>
+                  <p className="text-sm text-zinc-400">Set up from this repo</p>
                 </div>
                 <div className="space-y-1 rounded-[1.4rem] bg-zinc-900 px-4 py-3">
                   <CommandButton
-                    command={curlExample}
-                    copied={copiedId === 'curl'}
-                    onCopy={() => void handleCopy('curl', curlExample)}
+                    command={commands.clone}
+                    copied={copiedId === 'clone'}
+                    onCopy={() => void handleCopy('clone', commands.clone)}
                   />
                   <CommandButton
-                    command={healthCommand}
-                    copied={copiedId === 'health'}
-                    onCopy={() => void handleCopy('health', healthCommand)}
+                    command={commands.scaffold}
+                    copied={copiedId === 'scaffold'}
+                    onCopy={() => void handleCopy('scaffold', commands.scaffold)}
                   />
                 </div>
               </section>
 
               <section className="space-y-2 rounded-[1.75rem] bg-zinc-50 p-5">
                 <div className="px-1">
-                  <p className="text-sm text-zinc-400">One-time response</p>
+                  <p className="text-sm text-zinc-400">Run the generated app</p>
                 </div>
-                <CodeBlock tone="light">{responseExample}</CodeBlock>
+                <div className="space-y-1 rounded-[1.4rem] bg-white px-4 py-3 ring-1 ring-zinc-200">
+                  <CommandButton
+                    command={commands.run}
+                    copied={copiedId === 'run'}
+                    dark={false}
+                    onCopy={() => void handleCopy('run', commands.run)}
+                  />
+                  <CommandButton
+                    command={commands.test}
+                    copied={copiedId === 'test'}
+                    dark={false}
+                    onCopy={() => void handleCopy('test', commands.test)}
+                  />
+                </div>
+              </section>
+
+              <section className="space-y-3 rounded-[1.75rem] bg-zinc-50 p-5">
+                <div className="px-1">
+                  <p className="text-sm text-zinc-400">What it scaffolds</p>
+                </div>
+                <div className="space-y-3 px-1 text-sm leading-7 text-zinc-500">
+                  <p>A Next.js App Router starter.</p>
+                  <p>A paid <code className="text-zinc-700">GET /paid</code> route backed by <code className="text-zinc-700">mppx/server</code>.</p>
+                  <p>
+                    <code className="text-zinc-700">.env.local</code>, <code className="text-zinc-700">.env.example</code>,
+                    and a locally generated wallet for testing today.
+                  </p>
+                </div>
               </section>
             </div>
           </div>
