@@ -98,10 +98,10 @@ The response should be treated as secret material:
 - `PRIVY_APP_ID`
 - `PRIVY_APP_SECRET`
 - `PRIVY_API_BASE_URL` (optional, defaults to `https://api.privy.io/v1`)
-- `PRIVY_AUTHORIZATION_KEY_PUBLIC_KEY` (required for the current export flow; use the real P-256 public key, preferably as single-line base64-DER, not a dashboard ID)
-- `PRIVY_AUTHORIZATION_PRIVATE_KEY` (required in Vercel to sign export requests; use the matching PKCS#8 PEM private key with `\n` escapes)
+- `PRIVY_AUTHORIZATION_PRIVATE_KEY` (required in Vercel to sign export requests; this repo accepts the Privy dashboard format `wallet-auth:<base64-pkcs8>`, a PKCS#8 PEM private key with `\n` escapes, or raw base64 PKCS#8 DER)
+- `PRIVY_AUTHORIZATION_KEY_PUBLIC_KEY` (optional when the private key above is present; if set, use the real P-256 public key, preferably as single-line base64-DER, not a dashboard ID)
 
-For local development, if `PRIVY_AUTHORIZATION_PRIVATE_KEY` is unset, the API falls back to `.privy/authorization-private.pem`.
+For local development, if `PRIVY_AUTHORIZATION_PRIVATE_KEY` is unset, the API falls back to `.privy/authorization-private.pem`. If `PRIVY_AUTHORIZATION_KEY_PUBLIC_KEY` is unset, the API derives it from the authorization private key.
 
 ## Landing page
 

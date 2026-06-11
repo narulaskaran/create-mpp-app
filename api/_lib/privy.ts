@@ -1,12 +1,13 @@
 import { Chacha20Poly1305 } from '@hpke/chacha20poly1305'
 import { CipherSuite, DhkemP256HkdfSha256, HkdfSha256 } from '@hpke/core'
 import canonicalize from 'canonicalize'
-import { createPrivateKey, createSign, type KeyObject } from 'node:crypto'
+import { createPrivateKey, createPublicKey, createSign, type KeyObject } from 'node:crypto'
 import { existsSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
 const DEFAULT_PRIVY_API_BASE_URL = 'https://api.privy.io/v1'
 const DEFAULT_PRIVY_AUTHORIZATION_PRIVATE_KEY_PATH = '.privy/authorization-private.pem'
+const PRIVY_AUTHORIZATION_PRIVATE_KEY_PREFIX = 'wallet-auth:'
 const PRIVATE_KEY_WARNING = 'Store this private key securely. It will not be shown again.'
 const PRIVY_AUTHORIZATION_REQUEST_TTL_MS = 5 * 60 * 1000
 
@@ -76,7 +77,6 @@ export function isPrivyProvisioningConfigured(): boolean {
   return (
     hasEnv('PRIVY_APP_ID') &&
     hasEnv('PRIVY_APP_SECRET') &&
-    hasEnv('PRIVY_AUTHORIZATION_KEY_PUBLIC_KEY') &&
     hasPrivyAuthorizationPrivateKey()
   )
 }
@@ -103,7 +103,7 @@ function optionalString(value: unknown, fieldName: string): string | undefined {
 }
 
 async function createWallet(chainType: 'ethereum'): Promise<CreateWalletResponse> {
-  const ownerPublicKey = requireEnv('PRIVY_AUTHORIZATION_KEY_PUBLIC_KEY')
+  const ownerPublicKey = resolvePrivyAuthorizationPublicKey()
   const body: Record<string, unknown> = {
     chain_type: chainType,
     owner: { public_key: ownerPublicKey },
@@ -193,6 +193,15 @@ function hasEnv(name: string): boolean {
   return Boolean(process.env[name]?.trim())
 }
 
+function resolvePrivyAuthorizationPublicKey(): string {
+  const configuredPublicKey = process.env.PRIVY_AUTHORIZATION_KEY_PUBLIC_KEY?.trim()
+  if (configuredPublicKey) {
+    return configuredPublicKey
+  }
+
+  return deriveAuthorizationPublicKey(loadPrivyAuthorizationPrivateKey())
+}
+
 function privyApiBaseUrl(): string {
   return (process.env.PRIVY_API_BASE_URL?.trim() || DEFAULT_PRIVY_API_BASE_URL).replace(/\/+$/, '')
 }
@@ -260,7 +269,7 @@ function loadPrivyAuthorizationPrivateKey(): KeyObject {
 }
 
 function createAuthorizationPrivateKey(value: string, sourceName: string): KeyObject {
-  const normalized = value.replace(/\\n/g, '\n').trim()
+  const normalized = normalizeAuthorizationPrivateKeyValue(value)
 
   try {
     return createPrivateKey(normalized)
@@ -275,6 +284,26 @@ function createAuthorizationPrivateKey(value: string, sourceName: string): KeyOb
       throw new ApiError(`${sourceName} is not a valid PKCS#8 P-256 private key.`, 500, 'configuration_error')
     }
   }
+}
+
+function normalizeAuthorizationPrivateKeyValue(value: string): string {
+  const normalized = value.replace(/\\n/g, '\n').trim()
+
+  if (normalized.startsWith(PRIVY_AUTHORIZATION_PRIVATE_KEY_PREFIX)) {
+    return normalized.slice(PRIVY_AUTHORIZATION_PRIVATE_KEY_PREFIX.length)
+  }
+
+  return normalized
+}
+
+function deriveAuthorizationPublicKey(privateKey: KeyObject): string {
+  const publicKey = createPublicKey(privateKey)
+  const exported = publicKey.export({
+    format: 'der',
+    type: 'spki',
+  })
+
+  return Buffer.from(exported).toString('base64')
 }
 
 function hasPrivyAuthorizationPrivateKey(): boolean {

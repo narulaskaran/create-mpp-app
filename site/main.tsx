@@ -34,11 +34,11 @@ const envVars = [
   },
   {
     name: 'PRIVY_AUTHORIZATION_KEY_PUBLIC_KEY',
-    description: 'Registered P-256 public key used as the wallet owner for export.',
+    description: 'Optional override. If omitted, the API derives the owner public key from the authorization private key.',
   },
   {
     name: 'PRIVY_AUTHORIZATION_PRIVATE_KEY',
-    description: 'Matching PKCS#8 private key used to sign the export request.',
+    description: 'Required. Accepts Privy dashboard `wallet-auth:...`, PKCS#8 PEM, or raw base64 PKCS#8 DER.',
   },
 ]
 
