@@ -189,7 +189,9 @@ function App(): React.JSX.Element {
 
               <section className="space-y-2 rounded-[1.75rem] bg-zinc-50 p-5">
                 <div className="px-1">
-                  <p className="text-sm text-zinc-400">Then test it</p>
+                  <p className="text-sm text-zinc-400">
+                    Then test it. If you stop the server, use the second command to boot it again.
+                  </p>
                 </div>
                 <div className="space-y-1 rounded-[1.4rem] bg-white px-4 py-3 ring-1 ring-zinc-200">
                   <CommandButton
@@ -204,24 +206,6 @@ function App(): React.JSX.Element {
                     dark={false}
                     onCopy={() => void handleCopy('restart', commands.restart)}
                   />
-                </div>
-                <p className="px-1 text-sm leading-7 text-zinc-400">
-                  The CLI starts the dev server automatically. Use the second command if you stop it and want to
-                  boot it again later.
-                </p>
-              </section>
-
-              <section className="space-y-3 rounded-[1.75rem] bg-zinc-50 p-5">
-                <div className="px-1">
-                  <p className="text-sm text-zinc-400">What it scaffolds</p>
-                </div>
-                <div className="space-y-3 px-1 text-sm leading-7 text-zinc-500">
-                  <p>A Next.js App Router starter.</p>
-                  <p>A paid <code className="text-zinc-700">GET /paid</code> route backed by <code className="text-zinc-700">mppx/server</code>.</p>
-                  <p>
-                    <code className="text-zinc-700">.env.local</code>, <code className="text-zinc-700">.env.example</code>,
-                    and a wallet provisioned once through the public service.
-                  </p>
                 </div>
               </section>
             </div>
