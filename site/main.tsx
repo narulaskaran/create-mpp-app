@@ -7,7 +7,7 @@ type HealthState = 'loading' | 'configured' | 'missing' | 'unavailable'
 const commands = {
   clone: 'git clone https://github.com/narulaskaran/create-mpp-app.git',
   scaffold: 'cd create-mpp-app && npm install && npm run dev -- my-mpp-app',
-  run: 'cd my-mpp-app && npm run dev',
+  restart: 'cd my-mpp-app && npm run dev',
   test: 'npx mppx http://localhost:3000/paid',
 }
 
@@ -164,6 +164,7 @@ function App(): React.JSX.Element {
               <p className="max-w-2xl text-sm leading-7 text-zinc-400">
                 The package is not published yet, so the current flow runs from this repo. The CLI provisions
                 the wallet by calling this deployment, so users do not need their own Privy app or hosted API.
+                It also boots the generated app for you after setup.
               </p>
             </div>
 
@@ -188,22 +189,26 @@ function App(): React.JSX.Element {
 
               <section className="space-y-2 rounded-[1.75rem] bg-zinc-50 p-5">
                 <div className="px-1">
-                  <p className="text-sm text-zinc-400">Run the generated app</p>
+                  <p className="text-sm text-zinc-400">Then test it</p>
                 </div>
                 <div className="space-y-1 rounded-[1.4rem] bg-white px-4 py-3 ring-1 ring-zinc-200">
-                  <CommandButton
-                    command={commands.run}
-                    copied={copiedId === 'run'}
-                    dark={false}
-                    onCopy={() => void handleCopy('run', commands.run)}
-                  />
                   <CommandButton
                     command={commands.test}
                     copied={copiedId === 'test'}
                     dark={false}
                     onCopy={() => void handleCopy('test', commands.test)}
                   />
+                  <CommandButton
+                    command={commands.restart}
+                    copied={copiedId === 'restart'}
+                    dark={false}
+                    onCopy={() => void handleCopy('restart', commands.restart)}
+                  />
                 </div>
+                <p className="px-1 text-sm leading-7 text-zinc-400">
+                  The CLI starts the dev server automatically. Use the second command if you stop it and want to
+                  boot it again later.
+                </p>
               </section>
 
               <section className="space-y-3 rounded-[1.75rem] bg-zinc-50 p-5">
