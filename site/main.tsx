@@ -73,15 +73,18 @@ function App(): React.JSX.Element {
       <div className="relative flex min-h-screen flex-col overflow-auto">
         <header className="absolute left-0 right-0 top-0 flex items-center justify-between px-6 py-5 md:px-8">
           <span className="text-base font-medium text-zinc-500">create-mpp-app</span>
+        </header>
+
+        <footer className="absolute bottom-0 left-0 right-0 flex items-center justify-center px-6 py-5 md:px-8">
           <a
-            className="text-base text-zinc-500 transition-colors hover:text-zinc-800"
+            className="text-sm text-zinc-400 transition-colors hover:text-zinc-600"
             href="https://github.com/narulaskaran/create-mpp-app"
             rel="noreferrer"
             target="_blank"
           >
-            GitHub →
+            View on GitHub
           </a>
-        </header>
+        </footer>
 
         <main className="flex flex-1 items-center justify-center px-6 pb-20 pt-24 md:px-8">
           <div className="w-full max-w-3xl space-y-10">
@@ -89,7 +92,7 @@ function App(): React.JSX.Element {
               <h1 className="text-4xl font-semibold leading-tight tracking-tight text-zinc-900 md:text-6xl">
                 Start accepting
                 <br />
-                Machine <span className="text-emerald-600">Payments</span>
+                Machine <span style={{ color: '#00A63A' }}>Payments</span>
               </h1>
 
               <p className="max-w-2xl text-lg leading-8 text-zinc-500">
