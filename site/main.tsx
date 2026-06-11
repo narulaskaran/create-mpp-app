@@ -5,8 +5,7 @@ import { Check, Copy } from 'lucide-react'
 const commands = {
   clone: 'git clone https://github.com/narulaskaran/create-mpp-app.git',
   scaffold: 'cd create-mpp-app && npm run dev -- my-mpp-app',
-  restart: 'cd my-mpp-app && npm run dev',
-  test: 'npx mppx http://localhost:3000/paid',
+  test: 'tempo request <url>',
 }
 
 function CommandButton({
@@ -137,9 +136,7 @@ function App(): React.JSX.Element {
 
               <section className="space-y-2 rounded-[1.75rem] bg-zinc-50 p-5">
                 <div className="px-1">
-                  <p className="text-sm text-zinc-400">
-                    Then test it. If you stop the server, use the second command to boot it again.
-                  </p>
+                  <p className="text-sm text-zinc-400">Then test it.</p>
                 </div>
                 <div className="space-y-1 rounded-[1.4rem] bg-white px-4 py-3 ring-1 ring-zinc-200">
                   <CommandButton
@@ -147,12 +144,6 @@ function App(): React.JSX.Element {
                     copied={copiedId === 'test'}
                     dark={false}
                     onCopy={() => void handleCopy('test', commands.test)}
-                  />
-                  <CommandButton
-                    command={commands.restart}
-                    copied={copiedId === 'restart'}
-                    dark={false}
-                    onCopy={() => void handleCopy('restart', commands.restart)}
                   />
                 </div>
               </section>

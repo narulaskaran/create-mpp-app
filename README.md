@@ -36,7 +36,7 @@ npm run dev
 Test the paid route:
 
 ```bash
-npx mppx http://localhost:3000/paid
+tempo request http://localhost:3000/paid
 ```
 
 ## CLI flags

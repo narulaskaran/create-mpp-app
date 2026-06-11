@@ -372,7 +372,7 @@ function printSuccess(name) {
     `  cd ${name} && npm run dev`,
     "",
     "Test payment:",
-    "  npx mppx http://localhost:3000/paid",
+    "  tempo request http://localhost:3000/paid",
     "",
     "Wallet address and private key are in .env.local. Back them up."
   ].join("\n"));
@@ -386,7 +386,7 @@ function printAutoStart(name) {
     `  cd ${name} && npm run dev`,
     "",
     "Test payment once it is ready:",
-    "  npx mppx http://localhost:3000/paid",
+    "  tempo request http://localhost:3000/paid",
     "",
     "Wallet address and private key are in .env.local. Back them up."
   ].join("\n"));
