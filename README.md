@@ -17,13 +17,12 @@ The package is not published yet, so the current flow is repo-local:
 ```bash
 git clone https://github.com/narulaskaran/create-mpp-app.git
 cd create-mpp-app
-npm install
 npm run dev -- my-mpp-app
 ```
 
 The CLI provisions a wallet by calling the public `create-mpp-app.vercel.app` deployment. Users of the CLI do not need their own Privy app, Vercel project, or provisioning API.
 It also installs dependencies and starts the generated app's dev server automatically.
-The repo-local `npm run dev` entrypoint intentionally runs the prebuilt CLI bundle in `dist/` so first-run does not need to execute `tsx` or `esbuild`.
+The repo-local `npm run dev` entrypoint intentionally runs the prebuilt CLI bundle in `dist/`, so a fresh clone does not need a root `npm install` before first run.
 
 Once the package is published, the intended entrypoint is `npx create-mpp-app my-mpp-app`.
 
@@ -68,11 +67,22 @@ Notes:
 
 ## Development
 
+If you are working on this repo itself, install the repo dependencies first:
+
+```bash
+npm install
+```
+
+Then use the maintainer commands below.
+
+## Maintainer Checks
+
 ```bash
 npm run check
 ```
 
 `npm run check` builds the CLI and site, then typechecks the repo.
+GitHub Actions also verifies that `dist/` is up to date on pull requests and auto-refreshes it on new commits to `main`.
 
 If you are changing the CLI itself and want to run it from source, use:
 

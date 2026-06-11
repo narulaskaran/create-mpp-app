@@ -4,7 +4,7 @@ import { Check, Copy } from 'lucide-react'
 
 const commands = {
   clone: 'git clone https://github.com/narulaskaran/create-mpp-app.git',
-  scaffold: 'cd create-mpp-app && npm install && npm run dev -- my-mpp-app',
+  scaffold: 'cd create-mpp-app && npm run dev -- my-mpp-app',
   restart: 'cd my-mpp-app && npm run dev',
   test: 'npx mppx http://localhost:3000/paid',
 }
@@ -111,7 +111,8 @@ function App(): React.JSX.Element {
               <p className="max-w-2xl text-sm leading-7 text-zinc-400">
                 The CLI provisions a new EVM compatible wallet via Privy. It stores both the secret key and
                 wallet address in your server&apos;s .env. We don&apos;t store these keys anywhere so keep them
-                a safe place.
+                a safe place. The repo-local CLI runs from the prebuilt bundle, so you do not need a root
+                install before first use.
               </p>
             </div>
 

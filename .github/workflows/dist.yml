@@ -1,0 +1,58 @@
+name: Dist
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  dist:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build dist
+        run: npm run build
+
+      - name: Verify dist is up to date
+        if: github.event_name == 'pull_request'
+        run: |
+          if git diff --quiet -- dist; then
+            echo "dist is up to date"
+            exit 0
+          fi
+
+          echo "dist is out of date. Run npm run build and commit the updated dist output."
+          git --no-pager diff -- dist
+          exit 1
+
+      - name: Commit updated dist
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          if git diff --quiet -- dist; then
+            echo "dist is already up to date"
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add dist
+          git commit -m "Update dist bundle"
+          git push

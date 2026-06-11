@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
 // src/index.ts
-import * as p from "@clack/prompts";
 import { execSync, spawn } from "child_process";
 import { existsSync, mkdirSync as mkdirSync2 } from "fs";
+import { stdin as input, stdout as output } from "process";
+import { createInterface } from "readline/promises";
 import { resolve } from "path";
-import pc from "picocolors";
 
 // src/scaffold.ts
 import { mkdirSync, writeFileSync } from "fs";
@@ -277,131 +277,96 @@ function parseArgs() {
 async function main() {
   const { projectName: argName, flags } = parseArgs();
   const nonInteractive = flags.yes || !process.stdout.isTTY;
-  if (!nonInteractive) {
-    console.log();
-    p.intro(pc.bgCyan(pc.black(" create-mpp-app ")));
-  }
-  let projectName;
-  let price;
-  let testnet;
-  if (nonInteractive) {
-    if (!argName) {
-      console.error("Error: project name required in non-interactive mode\nUsage: create-mpp-app <name> [--price=0.01] [--testnet|--mainnet] [--yes] [--no-dev]");
-      process.exit(1);
-    }
-    projectName = argName;
-    price = flags.price;
-    testnet = flags.testnet;
-  } else {
-    const nameResult = argName ?? await p.text({
-      message: "Project name?",
-      placeholder: "my-mpp-api",
-      validate: (v) => !v ? "Required" : void 0
-    });
-    if (p.isCancel(nameResult)) {
-      p.cancel("Cancelled");
-      process.exit(0);
-    }
-    projectName = nameResult;
-    const priceResult = await p.text({
-      message: "Price per call (USDC)?",
-      placeholder: "0.01",
-      initialValue: "0.01",
-      validate: (v) => isNaN(Number(v)) || Number(v) <= 0 ? "Must be a positive number" : void 0
-    });
-    if (p.isCancel(priceResult)) {
-      p.cancel("Cancelled");
-      process.exit(0);
-    }
-    price = priceResult;
-    const testnetResult = await p.confirm({
-      message: "Use testnet (Tempo Moderato)?",
-      initialValue: true
-    });
-    if (p.isCancel(testnetResult)) {
-      p.cancel("Cancelled");
-      process.exit(0);
-    }
-    testnet = testnetResult;
-  }
-  const dir = resolve(process.cwd(), projectName);
+  const project = nonInteractive ? resolveNonInteractiveInputs(argName, flags) : await promptForInputs(argName, flags);
+  const dir = resolve(process.cwd(), project.projectName);
   if (existsSync(dir)) {
-    const msg = `Directory ${projectName} already exists`;
-    if (nonInteractive) {
-      console.error("Error:", msg);
-      process.exit(1);
-    }
-    p.cancel(msg);
+    console.error(`Error: Directory ${project.projectName} already exists`);
     process.exit(1);
   }
-  const vars = { projectName, price, testnet };
-  if (nonInteractive) {
-    console.log("Provisioning wallet...");
-    const wallet2 = await provisionWallet(projectName);
-    console.log("Wallet:", wallet2.address);
-    console.log("Scaffolding project...");
-    mkdirSync2(dir, { recursive: true });
-    scaffold(dir, vars, wallet2);
-    console.log("Installing dependencies...");
-    execSync("npm install", { cwd: dir, stdio: "ignore" });
-    if (!flags.startDev) {
-      printSuccess(projectName);
-      return;
-    }
-    printAutoStart(projectName);
-    await startDevServer(dir);
-    return;
-  }
-  const walletSpinner = p.spinner();
-  walletSpinner.start("Provisioning wallet");
-  const wallet = await provisionWallet(projectName);
-  walletSpinner.stop(`Wallet: ${wallet.address}`);
-  const scaffoldSpinner = p.spinner();
-  scaffoldSpinner.start("Scaffolding project");
+  console.log("Provisioning wallet...");
+  const wallet = await provisionWallet(project.projectName);
+  console.log(`Wallet: ${wallet.address}`);
+  console.log("Scaffolding project...");
   mkdirSync2(dir, { recursive: true });
-  scaffold(dir, vars, wallet);
-  scaffoldSpinner.stop("Project scaffolded");
-  const installSpinner = p.spinner();
-  installSpinner.start("Installing dependencies");
+  scaffold(dir, project, wallet);
+  console.log("Installing dependencies...");
   execSync("npm install", { cwd: dir, stdio: "ignore" });
-  installSpinner.stop("Dependencies installed");
   if (!flags.startDev) {
-    p.outro(successMessage(projectName));
+    printSuccess(project.projectName);
     return;
   }
-  p.outro(autoStartMessage(projectName));
+  printAutoStart(project.projectName);
   await startDevServer(dir);
 }
-function successMessage(name) {
-  return [
-    pc.green("\u2713") + ` Project ready at ${pc.bold(`./${name}`)}`,
-    "",
-    pc.bold("Next steps:"),
-    `  cd ${name} && npm run dev`,
-    "",
-    pc.bold("Test payment:"),
-    "  npx mppx http://localhost:3000/paid",
-    "",
-    pc.yellow("\u26A0") + ` Wallet address and private key are in ${pc.bold(".env.local")} \u2014 back them up`
-  ].join("\n");
+function resolveNonInteractiveInputs(projectName, flags) {
+  if (!projectName) {
+    console.error(
+      "Error: project name required in non-interactive mode\nUsage: create-mpp-app <name> [--price=0.01] [--testnet|--mainnet] [--yes] [--no-dev]"
+    );
+    process.exit(1);
+  }
+  return {
+    projectName,
+    price: flags.price,
+    testnet: flags.testnet
+  };
 }
-function autoStartMessage(name) {
-  return [
-    pc.green("\u2713") + ` Project ready at ${pc.bold(`./${name}`)}`,
-    "",
-    pc.bold("Starting dev server:"),
-    `  cd ${name} && npm run dev`,
-    "",
-    pc.bold("Test payment once it is ready:"),
-    "  npx mppx http://localhost:3000/paid",
-    "",
-    pc.yellow("\u26A0") + ` Wallet address and private key are in ${pc.bold(".env.local")} \u2014 back them up`
-  ].join("\n");
+async function promptForInputs(projectName, flags) {
+  console.log("\ncreate-mpp-app\n");
+  const rl = createInterface({ input, output });
+  const handleSigint = () => {
+    output.write("\nCancelled\n");
+    rl.close();
+    process.exit(0);
+  };
+  process.once("SIGINT", handleSigint);
+  try {
+    const resolvedProjectName = projectName ? projectName : await promptText(
+      rl,
+      "Project name",
+      "my-mpp-api",
+      (value) => value ? void 0 : "Project name is required."
+    );
+    const price = await promptText(
+      rl,
+      "Price per call (USDC)",
+      flags.price,
+      (value) => isNaN(Number(value)) || Number(value) <= 0 ? "Price must be a positive number." : void 0
+    );
+    const testnet = await promptConfirm(rl, "Use testnet (Tempo Moderato)?", flags.testnet);
+    return {
+      projectName: resolvedProjectName,
+      price,
+      testnet
+    };
+  } finally {
+    process.off("SIGINT", handleSigint);
+    rl.close();
+  }
+}
+async function promptText(rl, label, initialValue, validate) {
+  while (true) {
+    const answer = (await rl.question(`${label} (${initialValue}): `)).trim();
+    const value = answer || initialValue;
+    const error = validate(value);
+    if (!error) return value;
+    console.log(error);
+  }
+}
+async function promptConfirm(rl, label, initialValue) {
+  const suffix = initialValue ? "[Y/n]" : "[y/N]";
+  while (true) {
+    const answer = (await rl.question(`${label} ${suffix}: `)).trim().toLowerCase();
+    if (!answer) return initialValue;
+    if (answer === "y" || answer === "yes") return true;
+    if (answer === "n" || answer === "no") return false;
+    console.log("Please enter yes or no.");
+  }
 }
 function printSuccess(name) {
   console.log([
     "",
-    `\u2713 Project ready at ./${name}`,
+    `Project ready at ./${name}`,
     "",
     "Next steps:",
     `  cd ${name} && npm run dev`,
@@ -409,13 +374,13 @@ function printSuccess(name) {
     "Test payment:",
     "  npx mppx http://localhost:3000/paid",
     "",
-    "\u26A0 Wallet address and private key are in .env.local \u2014 back them up"
+    "Wallet address and private key are in .env.local. Back them up."
   ].join("\n"));
 }
 function printAutoStart(name) {
   console.log([
     "",
-    `\u2713 Project ready at ./${name}`,
+    `Project ready at ./${name}`,
     "",
     "Starting dev server:",
     `  cd ${name} && npm run dev`,
@@ -423,7 +388,7 @@ function printAutoStart(name) {
     "Test payment once it is ready:",
     "  npx mppx http://localhost:3000/paid",
     "",
-    "\u26A0 Wallet address and private key are in .env.local \u2014 back them up"
+    "Wallet address and private key are in .env.local. Back them up."
   ].join("\n"));
 }
 async function startDevServer(dir) {
