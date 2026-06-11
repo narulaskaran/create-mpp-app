@@ -109,8 +109,7 @@ function App(): React.JSX.Element {
               <p className="max-w-2xl text-sm leading-7 text-zinc-400">
                 The CLI provisions a new EVM compatible wallet via Privy. It stores both the secret key and
                 wallet address in your server&apos;s .env. We don&apos;t store these keys anywhere so keep them
-                a safe place. The repo-local CLI runs from the prebuilt bundle, so you do not need a root
-                install before first use.
+                a safe place.
               </p>
             </div>
 
