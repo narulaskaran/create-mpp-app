@@ -117,9 +117,6 @@ function App(): React.JSX.Element {
 
             <div className="space-y-4">
               <section className="space-y-2 rounded-[1.75rem] bg-zinc-50 p-5">
-                <div className="px-1">
-                  <p className="text-sm text-zinc-400">Set up from this repo</p>
-                </div>
                 <div className="space-y-1 rounded-[1.4rem] bg-zinc-900 px-4 py-3">
                   <CommandButton
                     command={commands.clone}

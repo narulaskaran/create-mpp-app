@@ -1,5 +1,6 @@
 import { execSync, spawn } from 'child_process'
 import { existsSync, mkdirSync } from 'fs'
+import { createServer } from 'net'
 import { stdin as input, stdout as output } from 'node:process'
 import { createInterface, type Interface } from 'node:readline/promises'
 import { resolve } from 'path'
@@ -56,13 +57,15 @@ async function main() {
   console.log('Installing dependencies...')
   execSync('npm install', { cwd: dir, stdio: 'ignore' })
 
+  const devPort = await findAvailablePort()
+
   if (!flags.startDev) {
-    printSuccess(project.projectName)
+    printSuccess(project.projectName, devPort)
     return
   }
 
-  printAutoStart(project.projectName)
-  await startDevServer(dir)
+  printAutoStart(project.projectName, devPort)
+  await startDevServer(dir, devPort)
 }
 
 function resolveNonInteractiveInputs(
@@ -150,41 +153,41 @@ async function promptConfirm(rl: Interface, label: string, initialValue: boolean
   }
 }
 
-function printSuccess(name: string): void {
+function printSuccess(name: string, port: number): void {
   console.log([
     '',
     `Project ready at ./${name}`,
     '',
     'Next steps:',
-    `  cd ${name} && npm run dev`,
+    `  cd ${name} && npm run dev -- --port ${port}`,
     '',
-    'Test payment:',
-    '  tempo request http://localhost:3000/paid',
+    'Test payment once it is ready:',
+    `  tempo request http://localhost:${port}/paid`,
     '',
     'Wallet address and private key are in .env.local. Back them up.',
   ].join('\n'))
 }
 
-function printAutoStart(name: string): void {
+function printAutoStart(name: string, port: number): void {
   console.log([
     '',
     `Project ready at ./${name}`,
     '',
     'Starting dev server:',
-    `  cd ${name} && npm run dev`,
+    `  cd ${name} && npm run dev -- --port ${port}`,
     '',
     'Test payment once it is ready:',
-    '  tempo request http://localhost:3000/paid',
+    `  tempo request http://localhost:${port}/paid`,
     '',
     'Wallet address and private key are in .env.local. Back them up.',
   ].join('\n'))
 }
 
-async function startDevServer(dir: string): Promise<void> {
+async function startDevServer(dir: string, port: number): Promise<void> {
   const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm'
 
   await new Promise<void>((resolvePromise, rejectPromise) => {
-    const child = spawn(npmCommand, ['run', 'dev'], {
+    const child = spawn(npmCommand, ['run', 'dev', '--', '--port', String(port)], {
       cwd: dir,
       stdio: 'inherit',
     })
@@ -198,6 +201,31 @@ async function startDevServer(dir: string): Promise<void> {
 
       rejectPromise(new Error(`Dev server exited unexpectedly (${signal ?? `code ${code}`}).`))
     })
+  })
+}
+
+async function findAvailablePort(startPort = 3000): Promise<number> {
+  for (let port = startPort; port < startPort + 100; port += 1) {
+    const available = await canBindPort(port)
+    if (available) return port
+  }
+
+  throw new Error(`Could not find an open localhost port starting at ${startPort}.`)
+}
+
+async function canBindPort(port: number): Promise<boolean> {
+  return await new Promise<boolean>((resolvePromise) => {
+    const server = createServer()
+
+    server.once('error', () => {
+      resolvePromise(false)
+    })
+
+    server.once('listening', () => {
+      server.close(() => resolvePromise(true))
+    })
+
+    server.listen(port, '127.0.0.1')
   })
 }
 

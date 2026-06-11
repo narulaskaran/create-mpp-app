@@ -33,11 +33,7 @@ cd my-mpp-app
 npm run dev
 ```
 
-Test the paid route:
-
-```bash
-tempo request http://localhost:3000/paid
-```
+When the server starts, the CLI prints the exact `tempo request http://localhost:<port>/paid` command for the chosen port.
 
 ## CLI flags
 
