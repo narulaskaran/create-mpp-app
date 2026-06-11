@@ -105,7 +105,7 @@ For local development, if `PRIVY_AUTHORIZATION_PRIVATE_KEY` is unset, the API fa
 
 ## Landing page
 
-The root landing page source lives in [`index.html`](./index.html) and is copied into generated `public/` output during the build so Vercel can serve it alongside the `api/` functions. It explains:
+The root landing page is generated into `public/` during the build from [`index.html`](./index.html) plus the React/Tailwind source in [`site/`](./site). Vercel serves that static output alongside the `api/` functions. It explains:
 
 - what this deployment does
 - how the CLI fits into the flow

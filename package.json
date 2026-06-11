@@ -11,7 +11,8 @@
   ],
   "scripts": {
     "dev": "tsx src/index.ts",
-    "build": "tsup && node scripts/build-static.mjs",
+    "build": "tsup && npm run build:site",
+    "build:site": "node scripts/build-static.mjs && tailwindcss -c tailwind.config.mjs -i ./site/styles.css -o ./public/styles.css --minify && esbuild ./site/main.tsx --bundle --format=esm --platform=browser --target=es2022 --outfile=./public/site.js --minify",
     "typecheck": "tsc --noEmit",
     "check": "npm run build && npm run typecheck",
     "prepublishOnly": "npm run build"
@@ -24,13 +25,23 @@
     "@hpke/chacha20poly1305": "^1.6.3",
     "@hpke/core": "^1.7.3",
     "canonicalize": "^3.0.0",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
     "fs-extra": "^11.3.0",
+    "lucide-react": "^1.14.0",
     "picocolors": "^1.1.1",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "tailwind-merge": "^3.6.0",
     "viem": "^2.48.4"
   },
   "devDependencies": {
     "@types/fs-extra": "^11.0.4",
     "@types/node": "^20",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "esbuild": "^0.28.0",
+    "tailwindcss": "^3.4.19",
     "tsup": "^8.4.0",
     "tsx": "^4.19.4",
     "typescript": "^5"
