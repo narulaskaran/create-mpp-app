@@ -1,0 +1,38 @@
+{
+  "name": "create-mpp-app",
+  "version": "0.1.0",
+  "description": "CLI to scaffold a Next.js app that accepts Machine Payments (MPP) via Tempo",
+  "type": "module",
+  "bin": {
+    "create-mpp-app": "./dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "tsx src/index.ts",
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "check": "npm run build && npm run typecheck",
+    "prepublishOnly": "npm run build"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@clack/prompts": "^0.9.1",
+    "@hpke/chacha20poly1305": "^1.6.3",
+    "@hpke/core": "^1.7.3",
+    "canonicalize": "^3.0.0",
+    "fs-extra": "^11.3.0",
+    "picocolors": "^1.1.1",
+    "viem": "^2.48.4"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
+    "@types/node": "^20",
+    "tsup": "^8.4.0",
+    "tsx": "^4.19.4",
+    "typescript": "^5"
+  }
+}

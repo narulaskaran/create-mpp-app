@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>create-mpp-app</title>
+    <meta
+      name="description"
+      content="Privy-backed wallet provisioning plus the create-mpp-app CLI in one deployable repo."
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="layout">
+      <section class="hero">
+        <p class="eyebrow">Machine Payments Demo Stack</p>
+        <h1>Hosted wallet provisioning for <code>create-mpp-app</code>.</h1>
+        <p class="lede">
+          This deployment is the Phase 1 backend for the Privy-backed onboarding flow. The CLI and the
+          provisioning API now live in the same repo so the Vercel deployment, API contract, and quickstart
+          story stay in one place.
+        </p>
+        <div class="status-row">
+          <div class="status-card">
+            <span class="status-label">API status</span>
+            <strong id="health-state">Checking</strong>
+          </div>
+          <div class="status-card">
+            <span class="status-label">Current CLI mode</span>
+            <strong>Local wallet generation</strong>
+          </div>
+          <div class="status-card">
+            <span class="status-label">Next phase</span>
+            <strong>CLI calls this API</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-copy">
+          <p class="eyebrow">CLI flow</p>
+          <h2>Where the CLI fits today</h2>
+          <p>
+            The original scaffold CLI is still in this repo. Phase 2 will switch it from local wallet generation
+            to a hosted provisioning call against this deployment.
+          </p>
+        </div>
+        <pre class="code-block"><code>npx create-mpp-app my-api
+
+# current repo-local development
+npm install
+npm run dev -- my-api</code></pre>
+      </section>
+
+      <section class="grid">
+        <article class="panel">
+          <p class="eyebrow">Provisioning API</p>
+          <h2><code>POST /api/provision</code></h2>
+          <p>
+            Creates an Ethereum wallet through Privy, exports the private key once, and returns the wallet
+            material for the CLI flow.
+          </p>
+          <pre class="code-block"><code id="curl-example"></code></pre>
+        </article>
+
+        <article class="panel">
+          <p class="eyebrow">Response</p>
+          <h2>One-time wallet payload</h2>
+          <pre class="code-block"><code>{
+  "walletId": "wallet_123",
+  "address": "0xabc...",
+  "privateKey": "0xdef...",
+  "chainType": "ethereum",
+  "warning": "Store this private key securely. It will not be shown again."
+}</code></pre>
+        </article>
+      </section>
+
+      <section class="panel">
+        <div class="panel-copy">
+          <p class="eyebrow">Deployment</p>
+          <h2>Vercel env vars</h2>
+          <p>Configure these before the hosted flow is usable:</p>
+        </div>
+        <pre class="code-block"><code>PRIVY_APP_ID=
+PRIVY_APP_SECRET=
+PRIVY_API_BASE_URL=https://api.privy.io/v1
+PRIVY_AUTHORIZATION_KEY_PUBLIC_KEY=</code></pre>
+      </section>
+    </main>
+
+    <script type="module" src="/site.js"></script>
+  </body>
+</html>
