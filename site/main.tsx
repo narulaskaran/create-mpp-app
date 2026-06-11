@@ -96,9 +96,8 @@ function App(): React.JSX.Element {
               </h1>
 
               <p className="max-w-2xl text-lg leading-8 text-zinc-500">
-                <span className="font-mono text-base text-zinc-700">create-mpp-app</span> scaffolds a small
-                Next.js app with a paid <code>/paid</code> route, an env file, and the pieces you need to test
-                Machine Payments Protocol locally.{' '}
+                Quickly scaffold a Next.js app with a <code>GET /paid</code> route which accepts machine
+                payments.{' '}
                 <a
                   className="text-zinc-400 underline underline-offset-4 transition-colors hover:text-zinc-600"
                   href="https://mpp.dev"
@@ -110,9 +109,9 @@ function App(): React.JSX.Element {
               </p>
 
               <p className="max-w-2xl text-sm leading-7 text-zinc-400">
-                The package is not published yet, so the current flow runs from this repo. The CLI provisions
-                the wallet by calling this deployment, so users do not need their own Privy app or hosted API.
-                It also boots the generated app for you after setup.
+                The CLI provisions a new EVM compatible wallet via Privy. It stores both the secret key and
+                wallet address in your server&apos;s .env. We don&apos;t store these keys anywhere so keep them
+                a safe place.
               </p>
             </div>
 
