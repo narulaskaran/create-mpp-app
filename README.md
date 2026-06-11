@@ -23,6 +23,7 @@ npm run dev -- my-mpp-app
 
 The CLI provisions a wallet by calling the public `create-mpp-app.vercel.app` deployment. Users of the CLI do not need their own Privy app, Vercel project, or provisioning API.
 It also installs dependencies and starts the generated app's dev server automatically.
+The repo-local `npm run dev` entrypoint intentionally runs the prebuilt CLI bundle in `dist/` so first-run does not need to execute `tsx` or `esbuild`.
 
 Once the package is published, the intended entrypoint is `npx create-mpp-app my-mpp-app`.
 
@@ -72,3 +73,9 @@ npm run check
 ```
 
 `npm run check` builds the CLI and site, then typechecks the repo.
+
+If you are changing the CLI itself and want to run it from source, use:
+
+```bash
+npm run dev:source -- my-mpp-app
+```

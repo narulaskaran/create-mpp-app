@@ -10,7 +10,8 @@
     "dist"
   ],
   "scripts": {
-    "dev": "tsx src/index.ts",
+    "dev": "node ./dist/index.js",
+    "dev:source": "tsx src/index.ts",
     "build": "tsup && npm run build:site",
     "build:site": "node scripts/build-static.mjs && tailwindcss -c tailwind.config.mjs -i ./site/styles.css -o ./public/styles.css --minify && esbuild ./site/main.tsx --bundle --format=esm --platform=browser --target=es2022 --outfile=./public/site.js --minify",
     "typecheck": "tsc --noEmit",
