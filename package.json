@@ -11,7 +11,7 @@
   ],
   "scripts": {
     "dev": "tsx src/index.ts",
-    "build": "tsup",
+    "build": "tsup && node scripts/build-static.mjs",
     "typecheck": "tsc --noEmit",
     "check": "npm run build && npm run typecheck",
     "prepublishOnly": "npm run build"

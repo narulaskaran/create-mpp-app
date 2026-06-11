@@ -46,6 +46,7 @@ npm run dev -- my-api
 ## Phase 1 provisioning API
 
 Deploy this repo to Vercel and configure the env vars in [.env.example](./.env.example).
+`npm run build` now emits both the CLI bundle in `dist/` and the landing page assets in `public/`, which matches the Vercel deployment.
 
 This implementation currently follows the managed-app/server-export path:
 
@@ -104,7 +105,7 @@ For local development, if `PRIVY_AUTHORIZATION_PRIVATE_KEY` is unset, the API fa
 
 ## Landing page
 
-The Vercel deployment serves a minimal root page from [`index.html`](./index.html) that explains:
+The root landing page source lives in [`index.html`](./index.html) and is copied into generated `public/` output during the build so Vercel can serve it alongside the `api/` functions. It explains:
 
 - what this deployment does
 - how the CLI fits into the flow
