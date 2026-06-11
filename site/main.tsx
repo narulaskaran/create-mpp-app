@@ -98,7 +98,15 @@ function App(): React.JSX.Element {
               <p className="max-w-2xl text-lg leading-8 text-zinc-500">
                 <span className="font-mono text-base text-zinc-700">create-mpp-app</span> scaffolds a small
                 Next.js app with a paid <code>/paid</code> route, an env file, and the pieces you need to test
-                Machine Payments Protocol locally.
+                Machine Payments Protocol locally.{' '}
+                <a
+                  className="text-zinc-400 underline underline-offset-4 transition-colors hover:text-zinc-600"
+                  href="https://mpp.dev"
+                  rel="noreferrer"
+                  target="_blank"
+                >
+                  What is MPP?
+                </a>
               </p>
 
               <p className="max-w-2xl text-sm leading-7 text-zinc-400">
