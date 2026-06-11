@@ -6,8 +6,8 @@ export default function handler(_req: ApiRequest, res: ServerResponse): void {
   sendJson(res, 200, {
     ok: true,
     phase: 'phase-1',
-    cliMode: 'local_wallet_generation',
+    cliMode: 'remote_wallet_provisioning',
     provisioningConfigured: isPrivyProvisioningConfigured(),
-    nextStep: 'phase-2-cli-integration',
+    nextStep: 'publish_cli',
   })
 }

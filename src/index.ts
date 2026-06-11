@@ -4,7 +4,7 @@ import { existsSync, mkdirSync } from 'fs'
 import { resolve } from 'path'
 import pc from 'picocolors'
 import { scaffold } from './scaffold.js'
-import { generateWallet } from './wallet.js'
+import { provisionWallet } from './wallet.js'
 
 interface Flags {
   yes: boolean
@@ -87,8 +87,8 @@ async function main() {
   const vars = { projectName, price, testnet }
 
   if (nonInteractive) {
-    console.log('Generating wallet...')
-    const wallet = generateWallet()
+    console.log('Provisioning wallet...')
+    const wallet = await provisionWallet(projectName)
     console.log('Wallet:', wallet.address)
     console.log('Scaffolding project...')
     mkdirSync(dir, { recursive: true })
@@ -100,8 +100,8 @@ async function main() {
   }
 
   const walletSpinner = p.spinner()
-  walletSpinner.start('Generating wallet')
-  const wallet = generateWallet()
+  walletSpinner.start('Provisioning wallet')
+  const wallet = await provisionWallet(projectName)
   walletSpinner.stop(`Wallet: ${wallet.address}`)
 
   const scaffoldSpinner = p.spinner()
@@ -128,7 +128,7 @@ function successMessage(name: string): string {
     pc.bold('Test payment:'),
     '  npx mppx http://localhost:3000/paid',
     '',
-    pc.yellow('⚠') + ` Private key is in ${pc.bold('.env.local')} — back it up`,
+    pc.yellow('⚠') + ` Wallet address and private key are in ${pc.bold('.env.local')} — back them up`,
   ].join('\n')
 }
 
@@ -143,11 +143,11 @@ function printSuccess(name: string): void {
     'Test payment:',
     '  npx mppx http://localhost:3000/paid',
     '',
-    `⚠ Private key is in .env.local — back it up`,
+    '⚠ Wallet address and private key are in .env.local — back them up',
   ].join('\n'))
 }
 
 main().catch((err) => {
-  console.error(err)
+  console.error(err instanceof Error ? `Error: ${err.message}` : err)
   process.exit(1)
 })

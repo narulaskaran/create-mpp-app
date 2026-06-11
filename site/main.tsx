@@ -14,17 +14,17 @@ const commands = {
 const healthCopy: Record<HealthState, { label: string; detail: string; tone: string }> = {
   loading: {
     label: 'Checking hosted API',
-    detail: 'Verifying whether the optional hosted provisioning API is configured on this deployment.',
+    detail: 'Verifying whether the public wallet provisioning service is configured on this deployment.',
     tone: 'bg-zinc-100 text-zinc-600',
   },
   configured: {
     label: 'Hosted API configured',
-    detail: 'This deployment can create and export wallets, but that flow is still secondary to the CLI today.',
+    detail: 'This deployment is ready to provision wallets for the CLI.',
     tone: 'bg-emerald-100 text-emerald-800',
   },
   missing: {
     label: 'Hosted API not configured',
-    detail: 'The site is live, but the optional Privy provisioning API still needs env vars.',
+    detail: 'The site is live, but CLI wallet provisioning will fail until the service env vars are set.',
     tone: 'bg-amber-100 text-amber-800',
   },
   unavailable: {
@@ -162,8 +162,8 @@ function App(): React.JSX.Element {
               </p>
 
               <p className="max-w-2xl text-sm leading-7 text-zinc-400">
-                The package is not published yet, so the current flow runs from this repo. The hosted Privy
-                provisioning API on this deployment is separate and not yet wired into the CLI.
+                The package is not published yet, so the current flow runs from this repo. The CLI provisions
+                the wallet by calling this deployment, so users do not need their own Privy app or hosted API.
               </p>
             </div>
 
@@ -215,7 +215,7 @@ function App(): React.JSX.Element {
                   <p>A paid <code className="text-zinc-700">GET /paid</code> route backed by <code className="text-zinc-700">mppx/server</code>.</p>
                   <p>
                     <code className="text-zinc-700">.env.local</code>, <code className="text-zinc-700">.env.example</code>,
-                    and a locally generated wallet for testing today.
+                    and a wallet provisioned once through the public service.
                   </p>
                 </div>
               </section>

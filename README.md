@@ -7,7 +7,8 @@ Bootstrap a small Next.js app that accepts Machine Payments Protocol payments.
 - a Next.js App Router app
 - a paid `GET /paid` route powered by `mppx/server`
 - `.env.local` and `.env.example`
-- a locally generated wallet and MPP secret for testing
+- a wallet provisioned through `https://create-mpp-app.vercel.app/api/provision`
+- a local `MPP_SECRET_KEY` for the generated route
 
 ## Quickstart
 
@@ -19,6 +20,10 @@ cd create-mpp-app
 npm install
 npm run dev -- my-mpp-app
 ```
+
+The CLI provisions a wallet by calling the public `create-mpp-app.vercel.app` deployment. Users of the CLI do not need their own Privy app, Vercel project, or provisioning API.
+
+Once the package is published, the intended entrypoint is `npx create-mpp-app my-mpp-app`.
 
 Then start the generated app:
 
@@ -44,15 +49,19 @@ npx mppx http://localhost:3000/paid
 
 - [`src/`](./src): the CLI and scaffold templates
 - [`site/`](./site): the public landing page for the project
-- [`api/`](./api): an optional hosted Privy-backed provisioning API
+- [`api/`](./api): the hosted Privy-backed provisioning API the CLI calls by default
 
-The hosted API is a separate surface from the CLI today. The CLI still generates a wallet locally and does not yet call the deployed provisioning endpoint.
+Most users only need the CLI. The `api/` folder exists here because this repo also contains the public provisioning service behind it.
 
-## Hosted provisioning API
+## Maintaining The Provisioning Service
 
-If you deploy this repo to Vercel, it also serves the landing page and `api/` routes together. The provisioning API lives at `POST /api/provision`.
+The public provisioning API lives at `POST /api/provision`. Maintainers can run or deploy this repo with the env vars in [.env.example](./.env.example).
 
-Configure the required env vars in [.env.example](./.env.example) if you want that hosted flow. The repo accepts Privy dashboard authorization keys in the `wallet-auth:...` format.
+Notes:
+
+- `PRIVY_AUTHORIZATION_PRIVATE_KEY` accepts the Privy dashboard `wallet-auth:...` format.
+- `PRIVY_AUTHORIZATION_KEY_PUBLIC_KEY` is optional if the private key is present.
+- `CREATE_MPP_APP_PROVISION_URL` can override the default provisioning endpoint when developing the CLI against a different deployment.
 
 ## Development
 
