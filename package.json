@@ -25,6 +25,7 @@
     "@clack/prompts": "^0.9.1",
     "@hpke/chacha20poly1305": "^1.6.3",
     "@hpke/core": "^1.7.3",
+    "@vercel/analytics": "^2.0.1",
     "canonicalize": "^3.0.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
