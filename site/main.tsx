@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import { Check, Copy } from 'lucide-react'
+import { Analytics } from '@vercel/analytics/react'
 
 const commands = {
   clone: 'git clone https://github.com/narulaskaran/create-mpp-app.git',
@@ -67,72 +68,75 @@ function App(): React.JSX.Element {
   }
 
   return (
-    <div className="min-h-screen bg-white text-zinc-900">
-      <div className="relative flex min-h-screen flex-col overflow-auto">
-        <header className="absolute left-0 right-0 top-0 flex items-center justify-between px-6 py-5 md:px-8">
-          <span className="text-base font-medium text-zinc-500">create-mpp-app</span>
-        </header>
+    <>
+      <div className="min-h-screen bg-white text-zinc-900">
+        <div className="relative flex min-h-screen flex-col overflow-auto">
+          <header className="absolute left-0 right-0 top-0 flex items-center justify-between px-6 py-5 md:px-8">
+            <span className="text-base font-medium text-zinc-500">create-mpp-app</span>
+          </header>
 
-        <footer className="absolute bottom-0 left-0 right-0 flex items-center justify-center px-6 py-5 md:px-8">
-          <a
-            className="text-sm text-zinc-400 transition-colors hover:text-zinc-600"
-            href="https://github.com/narulaskaran/create-mpp-app"
-            rel="noreferrer"
-            target="_blank"
-          >
-            View on GitHub
-          </a>
-        </footer>
+          <footer className="absolute bottom-0 left-0 right-0 flex items-center justify-center px-6 py-5 md:px-8">
+            <a
+              className="text-sm text-zinc-400 transition-colors hover:text-zinc-600"
+              href="https://github.com/narulaskaran/create-mpp-app"
+              rel="noreferrer"
+              target="_blank"
+            >
+              View on GitHub
+            </a>
+          </footer>
 
-        <main className="flex flex-1 items-center justify-center px-6 pb-20 pt-24 md:px-8">
-          <div className="w-full max-w-3xl space-y-10">
-            <div className="space-y-4">
-              <h1 className="text-4xl font-semibold leading-tight tracking-tight text-zinc-900 md:text-6xl">
-                Start accepting
-                <br />
-                Machine <span style={{ color: '#00A63A' }}>Payments</span>
-              </h1>
+          <main className="flex flex-1 items-center justify-center px-6 pb-20 pt-24 md:px-8">
+            <div className="w-full max-w-3xl space-y-10">
+              <div className="space-y-4">
+                <h1 className="text-4xl font-semibold leading-tight tracking-tight text-zinc-900 md:text-6xl">
+                  Start accepting
+                  <br />
+                  Machine <span style={{ color: '#00A63A' }}>Payments</span>
+                </h1>
 
-              <p className="max-w-2xl text-lg leading-8 text-zinc-500">
-                Quickly scaffold a Next.js app with a <code>GET /paid</code> route which accepts machine
-                payments.{' '}
-                <a
-                  className="text-zinc-400 underline underline-offset-4 transition-colors hover:text-zinc-600"
-                  href="https://mpp.dev"
-                  rel="noreferrer"
-                  target="_blank"
-                >
-                  What is MPP?
-                </a>
-              </p>
+                <p className="max-w-2xl text-lg leading-8 text-zinc-500">
+                  Quickly scaffold a Next.js app with a <code>GET /paid</code> route which accepts machine
+                  payments.{' '}
+                  <a
+                    className="text-zinc-400 underline underline-offset-4 transition-colors hover:text-zinc-600"
+                    href="https://mpp.dev"
+                    rel="noreferrer"
+                    target="_blank"
+                  >
+                    What is MPP?
+                  </a>
+                </p>
 
-              <p className="max-w-2xl text-sm leading-7 text-zinc-400">
-                The CLI provisions a new EVM compatible wallet via Privy. It stores both the secret key and
-                wallet address in your server&apos;s .env. We don&apos;t store these keys anywhere so keep them
-                a safe place.
-              </p>
+                <p className="max-w-2xl text-sm leading-7 text-zinc-400">
+                  The CLI provisions a new EVM compatible wallet via Privy. It stores both the secret key and
+                  wallet address in your server&apos;s .env. We don&apos;t store these keys anywhere so keep them
+                  a safe place.
+                </p>
+              </div>
+
+              <div className="space-y-4">
+                <section className="space-y-2 rounded-[1.75rem] bg-zinc-50 p-5">
+                  <div className="space-y-1 rounded-[1.4rem] bg-zinc-900 px-4 py-3">
+                    <CommandButton
+                      command={commands.clone}
+                      copied={copiedId === 'clone'}
+                      onCopy={() => void handleCopy('clone', commands.clone)}
+                    />
+                    <CommandButton
+                      command={commands.scaffold}
+                      copied={copiedId === 'scaffold'}
+                      onCopy={() => void handleCopy('scaffold', commands.scaffold)}
+                    />
+                  </div>
+                </section>
+              </div>
             </div>
-
-            <div className="space-y-4">
-              <section className="space-y-2 rounded-[1.75rem] bg-zinc-50 p-5">
-                <div className="space-y-1 rounded-[1.4rem] bg-zinc-900 px-4 py-3">
-                  <CommandButton
-                    command={commands.clone}
-                    copied={copiedId === 'clone'}
-                    onCopy={() => void handleCopy('clone', commands.clone)}
-                  />
-                  <CommandButton
-                    command={commands.scaffold}
-                    copied={copiedId === 'scaffold'}
-                    onCopy={() => void handleCopy('scaffold', commands.scaffold)}
-                  />
-                </div>
-              </section>
-            </div>
-          </div>
-        </main>
+          </main>
+        </div>
       </div>
-    </div>
+      <Analytics />
+    </>
   )
 }
 
